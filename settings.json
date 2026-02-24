@@ -2,7 +2,7 @@
   "server": {
     "ip": "ReStabledSMP.aternos.me",
     "port": 59146,
-    "version": 1.21.11
+    "version": "1.21.11"
   },
   "bot": {
     "username": "ReStabledSMP"
