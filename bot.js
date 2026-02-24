@@ -4,12 +4,26 @@
 const config = require("./settings.json");
 const mineflayer = require("mineflayer");
 
+// ================================
+// REQUIRED FOR FREE RENDER WEB SERVICE
+// ================================
+const express = require("express");
+const app = express();
+
+app.get("/", (req, res) => {
+  res.send("AFK Bot is alive");
+});
+
+app.listen(process.env.PORT || 3000, () => {
+  console.log("🌐 Web service running");
+});
+
+// ================================
+// Bot Logic
+// ================================
 let bot;
 let reconnectTimeout = null;
 
-// ================================
-// Create Bot Function
-// ================================
 function createBot() {
   console.log("Starting bot...");
 
@@ -21,11 +35,8 @@ function createBot() {
     keepAlive: true
   });
 
-  // ================================
-  // Bot Events
-  // ================================
   bot.once("spawn", () => {
-    console.log("✅ Bot spawned successfully");
+    console.log("✅ Bot spawned");
 
     const chatCfg = config.utils["chat-messages"];
     if (chatCfg?.enabled && chatCfg.repeat) {
@@ -40,22 +51,19 @@ function createBot() {
   });
 
   bot.on("end", (reason) => {
-    console.log("❌ Bot disconnected:", reason);
+    console.log("❌ Disconnected:", reason);
     scheduleReconnect();
   });
 
   bot.on("error", (err) => {
-    console.log("⚠️ Bot error:", err.message);
+    console.log("⚠️ Error:", err.message);
   });
 
   bot.on("kicked", (reason) => {
-    console.log("🚫 Bot kicked:", reason);
+    console.log("🚫 Kicked:", reason);
   });
 }
 
-// ================================
-// Auto Reconnect Logic
-// ================================
 function scheduleReconnect() {
   if (reconnectTimeout) return;
 
@@ -66,20 +74,14 @@ function scheduleReconnect() {
   }, 15000);
 }
 
-// ================================
-// Start Bot
-// ================================
 createBot();
 
-// ================================
-// Crash Protection
-// ================================
 process.on("uncaughtException", (err) => {
-  console.error("🔥 Uncaught Exception:", err);
+  console.error("🔥 Crash:", err);
   scheduleReconnect();
 });
 
 process.on("unhandledRejection", (reason) => {
-  console.error("🔥 Unhandled Rejection:", reason);
+  console.error("🔥 Promise error:", reason);
   scheduleReconnect();
 });
